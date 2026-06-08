@@ -8,6 +8,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Inject Streamlit secrets into os.environ (needed on Community Cloud)
+try:
+    import streamlit as _st
+    for _k, _v in _st.secrets.items():
+        if _k not in os.environ:
+            os.environ[_k] = str(_v)
+except Exception:
+    pass
+
 from src.agents.router_agent import route_and_ingest, supported_extensions
 from src.agents.rag_agent import query as rag_query
 from src.core.vector_store import VectorStore
@@ -133,8 +142,14 @@ st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
 # ── Session state ─────────────────────────────────────────────────────────────
 def _init_state():
+    if "store" not in st.session_state:
+        try:
+            st.session_state["store"] = VectorStore()
+        except Exception as e:
+            st.error(f"Failed to connect to vector store: {e}")
+            st.stop()
     defaults = {
-        "store": VectorStore(),
+        "store": st.session_state["store"],
         "messages": [],          # {role, content, sources?, chunks_used?}
         "ingested": [],          # {name, chunks_stored, modality}
         "pending_q": None,       # question waiting for variant selection
