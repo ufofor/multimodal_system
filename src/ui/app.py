@@ -30,6 +30,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# DEBUG: remove after confirming render works
+st.write("DEBUG: app is rendering")
+
 # ── Theme ─────────────────────────────────────────────────────────────────────
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
