@@ -22,7 +22,14 @@ MEDIA_TYPES = {
     ".jpeg": "image/jpeg",
 }
 
-_client = anthropic.Anthropic()
+_client = None
+
+
+def _get_client() -> anthropic.Anthropic:
+    global _client
+    if _client is None:
+        _client = anthropic.Anthropic()
+    return _client
 _splitter = RecursiveCharacterTextSplitter(
     chunk_size=CHUNK_SIZE,
     chunk_overlap=CHUNK_OVERLAP,
@@ -40,7 +47,7 @@ def _extract_text_from_image(image_path: Path) -> str:
 
     image_data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
 
-    response = _client.messages.create(
+    response = _get_client().messages.create(
         model=MODEL,
         max_tokens=MAX_TOKENS,
         messages=[

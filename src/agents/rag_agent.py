@@ -20,7 +20,14 @@ Rules:
 - If the answer is not in the context, respond: "I couldn't find that in the uploaded documents."
 - Be concise and direct. Use bullet points for lists."""
 
-_client = anthropic.Anthropic()
+_client = None
+
+
+def _get_client() -> anthropic.Anthropic:
+    global _client
+    if _client is None:
+        _client = anthropic.Anthropic()
+    return _client
 
 
 @traceable(name="rag-query")
@@ -68,7 +75,7 @@ def query(
         }
     ]
 
-    response = _client.messages.create(
+    response = _get_client().messages.create(
         model=MODEL,
         max_tokens=MAX_TOKENS,
         system=SYSTEM_PROMPT,

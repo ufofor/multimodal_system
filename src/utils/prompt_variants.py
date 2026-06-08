@@ -3,13 +3,20 @@ import json
 
 import anthropic
 
-_client = anthropic.Anthropic()
+_client = None
 MODEL = "claude-haiku-4-5-20251001"
+
+
+def _get_client() -> anthropic.Anthropic:
+    global _client
+    if _client is None:
+        _client = anthropic.Anthropic()
+    return _client
 
 
 def generate_variants(question: str, n: int = 3) -> list[str]:
     """Return n alternative phrasings of question. Falls back to original on error."""
-    resp = _client.messages.create(
+    resp = _get_client().messages.create(
         model=MODEL,
         max_tokens=512,
         messages=[{
