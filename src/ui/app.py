@@ -67,19 +67,16 @@ CSS = """
 
 /* Base */
 .stApp { background-color: var(--bg-base) !important; font-family: var(--font) !important; }
-#MainMenu, footer, header { visibility: hidden !important; }
+#MainMenu, footer { visibility: hidden !important; }
+/* Hide toolbar content but NOT the header element itself (sidebar toggle lives there) */
+[data-testid="stToolbar"] { visibility: hidden !important; }
+[data-testid="stDecoration"] { display: none !important; }
 .stDeployButton { display: none !important; }
-
-/* Restore sidebar toggle so collapsed sidebar can be reopened */
-[data-testid="stSidebarCollapsedControl"] { visibility: visible !important; }
-[data-testid="stSidebarCollapseButton"] { visibility: visible !important; }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
   background-color: var(--bg-surface) !important;
   border-right: 1px solid var(--border) !important;
-  display: block !important;
-  visibility: visible !important;
 }
 
 /* All text */
@@ -243,17 +240,12 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     # Upload
-    st.markdown(
-        '<div style="font-size:0.7rem;color:#6B8499;letter-spacing:0.1em;'
-        'font-family:\'Space Mono\',monospace;margin-bottom:0.5rem;">UPLOAD DOCUMENTS</div>',
-        unsafe_allow_html=True,
-    )
     ext_list = [e.lstrip(".") for e in supported_extensions()]
     uploaded = st.file_uploader(
-        f"PDF · TXT · PNG · JPG",
+        "UPLOAD DOCUMENTS",
         type=ext_list,
         accept_multiple_files=False,
-        label_visibility="collapsed",
+        label_visibility="visible",
     )
     if uploaded:
         already = any(f["name"] == uploaded.name for f in st.session_state.ingested)
