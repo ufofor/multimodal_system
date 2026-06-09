@@ -70,10 +70,16 @@ CSS = """
 #MainMenu, footer, header { visibility: hidden !important; }
 .stDeployButton { display: none !important; }
 
+/* Restore sidebar toggle so collapsed sidebar can be reopened */
+[data-testid="stSidebarCollapsedControl"] { visibility: visible !important; }
+[data-testid="stSidebarCollapseButton"] { visibility: visible !important; }
+
 /* Sidebar */
 section[data-testid="stSidebar"] {
   background-color: var(--bg-surface) !important;
   border-right: 1px solid var(--border) !important;
+  display: block !important;
+  visibility: visible !important;
 }
 
 /* All text */
