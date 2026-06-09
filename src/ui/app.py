@@ -1,7 +1,13 @@
 """DocIntel — Enterprise Multimodal Document Intelligence Assistant."""
 import os
+import sys
 import tempfile
 from pathlib import Path
+
+# Ensure repo root is in sys.path (required for Streamlit Community Cloud)
+_repo_root = Path(__file__).resolve().parent.parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -17,10 +23,16 @@ try:
 except Exception:
     pass
 
-from src.agents.router_agent import route_and_ingest, supported_extensions
-from src.agents.rag_agent import query as rag_query
-from src.core.vector_store import VectorStore
-from src.utils.prompt_variants import generate_variants
+try:
+    from src.agents.router_agent import route_and_ingest, supported_extensions
+    from src.agents.rag_agent import query as rag_query
+    from src.core.vector_store import VectorStore
+    from src.utils.prompt_variants import generate_variants
+except Exception as _import_err:
+    import streamlit as _st
+    _st.set_page_config(page_title="DocIntel")
+    _st.error(f"Import error: {_import_err}")
+    _st.stop()
 
 # ── Page config (must be first Streamlit call) ────────────────────────────────
 st.set_page_config(
