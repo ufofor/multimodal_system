@@ -67,23 +67,31 @@ CSS = """
 
 /* Base */
 .stApp { background-color: var(--bg-base) !important; font-family: var(--font) !important; }
-#MainMenu, footer { visibility: hidden !important; }
-/* Hide toolbar content but NOT the header element itself (sidebar toggle lives there) */
-[data-testid="stToolbar"] { visibility: hidden !important; }
-[data-testid="stDecoration"] { display: none !important; }
+#MainMenu, footer, header { visibility: hidden !important; }
 .stDeployButton { display: none !important; }
 
-/* Sidebar */
+/* Sidebar — always visible, never collapsed off-screen */
 section[data-testid="stSidebar"] {
   background-color: var(--bg-surface) !important;
-  border-right: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border-bright) !important;
+  min-width: 244px !important;
+  transform: translateX(0px) !important;
+  visibility: visible !important;
+}
+section[data-testid="stSidebar"] > div {
+  display: block !important;
+  visibility: visible !important;
+}
+/* Keep sidebar toggle button accessible */
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="stSidebarCollapseButton"],
+button[aria-label="Close sidebar"],
+button[aria-label="Open sidebar"] {
+  visibility: visible !important;
 }
 
-/* All text */
-p, span, div, label, li {
-  font-family: var(--font) !important;
-  color: var(--text-2);
-}
+/* Typography — scoped to avoid fighting sidebar layout */
+p, label, li { font-family: var(--font) !important; color: var(--text-2); }
 h1, h2, h3 { font-family: var(--font) !important; color: var(--text-1) !important; }
 
 /* Buttons */
