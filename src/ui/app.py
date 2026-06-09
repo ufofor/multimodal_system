@@ -247,7 +247,7 @@ with st.sidebar:
         f"PDF · TXT · PNG · JPG",
         type=ext_list,
         accept_multiple_files=False,
-        label_visibility="visible",
+        label_visibility="collapsed",
     )
     if uploaded:
         already = any(f["name"] == uploaded.name for f in st.session_state.ingested)
