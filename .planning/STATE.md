@@ -1,26 +1,26 @@
 ---
 milestone: v1.0
 name: Market-Ready & Interview-Ready
-status: in-progress
+status: complete
 progress:
   phases_total: 3
-  phases_complete: 2
-  current_phase: 3
+  phases_complete: 3
+  current_phase: null
 ---
 
 ## Current Position
 
-Phase: Phase 3 — Interview Assets (starting)
+Phase: All phases complete
 Plan: .planning/ROADMAP.md
-Status: Executing Phase 3
-Last activity: 2026-06-10 — Phase 2 complete (S3 persistence implemented, AWS setup done)
+Status: Milestone v1.0 complete
+Last activity: 2026-06-10 — Phase 3 complete (STAR stories written, demo video skipped)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-06-09)
 
 **Core value:** Consultants find answers in 50 project docs in 30 seconds instead of 30 minutes.
-**Current focus:** Phase 3 — Interview Assets
+**Current focus:** None — milestone complete
 
 ## Accumulated Context
 
@@ -33,5 +33,4 @@ See: .planning/PROJECT.md (updated 2026-06-09)
 - None
 
 ### Pending Todos
-- Write STAR stories in docs/INTERVIEW_STORIES.md (Phase 3)
-- Record Loom demo video and add link to README (Phase 3)
+- None
