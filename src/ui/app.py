@@ -27,6 +27,7 @@ try:
     from src.agents.router_agent import route_and_ingest, supported_extensions
     from src.agents.rag_agent import query as rag_query
     from src.core.vector_store import VectorStore
+    from src.core import storage
     from src.utils.prompt_variants import generate_variants
 except Exception as _import_err:
     import streamlit as _st
@@ -164,6 +165,37 @@ st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
 
 # ── Session state ─────────────────────────────────────────────────────────────
+def _restore_from_s3() -> None:
+    try:
+        s3_files = storage.list_files()
+    except Exception:
+        return
+    for filename in s3_files:
+        if any(f["name"] == filename for f in st.session_state.ingested):
+            continue
+        is_image = Path(filename).suffix.lower() in {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+        if st.session_state.store.has_source(filename):
+            st.session_state.ingested.append({
+                "name": filename,
+                "chunks_stored": 0,
+                "modality": "image" if is_image else "text",
+            })
+        else:
+            suffix = Path(filename).suffix.lower()
+            file_bytes = storage.download_bytes(filename)
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+                tmp.write(file_bytes)
+                tmp_path = tmp.name
+            try:
+                result = route_and_ingest(tmp_path, st.session_state.store)
+                result["name"] = filename
+                st.session_state.ingested.append(result)
+            except Exception:
+                pass
+            finally:
+                os.unlink(tmp_path)
+
+
 def _init_state():
     if "store" not in st.session_state:
         try:
@@ -178,10 +210,14 @@ def _init_state():
         "pending_q": None,       # question waiting for variant selection
         "variants": [],          # 3 alternative phrasings
         "show_variants": False,
+        "s3_restored": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
+    if not st.session_state.s3_restored:
+        _restore_from_s3()
+        st.session_state.s3_restored = True
 
 _init_state()
 
@@ -189,13 +225,15 @@ _init_state()
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _ingest(uploaded_file) -> None:
     suffix = Path(uploaded_file.name).suffix.lower()
+    file_bytes = bytes(uploaded_file.getbuffer())
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(uploaded_file.getbuffer())
+        tmp.write(file_bytes)
         tmp_path = tmp.name
     try:
         result = route_and_ingest(tmp_path, st.session_state.store)
         result["name"] = uploaded_file.name
         st.session_state.ingested.append(result)
+        storage.upload_bytes(file_bytes, uploaded_file.name)
     finally:
         os.unlink(tmp_path)
 
@@ -225,12 +263,17 @@ def _select_variant(idx: int) -> None:
 
 def _reset_store() -> None:
     st.session_state.store._index.delete(delete_all=True)
+    try:
+        storage.delete_all_files()
+    except Exception:
+        pass
     st.session_state.store = VectorStore()
     st.session_state.ingested = []
     st.session_state.messages = []
     st.session_state.show_variants = False
     st.session_state.pending_q = None
     st.session_state.variants = []
+    st.session_state.s3_restored = True  # nothing to restore after reset
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────

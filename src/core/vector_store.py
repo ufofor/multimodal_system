@@ -43,6 +43,15 @@ class VectorStore:
         # Return ChromaDB-compatible shape so callers need no changes
         return {"documents": [documents], "metadatas": [metadatas]}
 
+    def has_source(self, filename: str) -> bool:
+        resp = self._index.query(
+            vector=[0.0] * 1536,
+            top_k=1,
+            include_metadata=False,
+            filter={"source": {"$eq": filename}},
+        )
+        return len(resp.get("matches", [])) > 0
+
     def count(self) -> int:
         stats = self._index.describe_index_stats()
         return stats.get("total_vector_count", 0)
